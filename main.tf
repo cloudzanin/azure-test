@@ -63,7 +63,7 @@ resource "azurerm_virtual_machine" "windows" {
   }
 
   os_profile {
-    computer_name  = "example-windows-machine"
+    computer_name  = "winvm01"
     admin_username = "adminuser"
     admin_password = "AdminPassword123!"
   }
