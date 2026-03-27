@@ -6,6 +6,10 @@ provider "azurerm" {
   }
 }
 
+locals {
+  vm_count = 2
+}
+
 
 
 resource "azurerm_resource_group" "example" {
@@ -28,12 +32,13 @@ resource "azurerm_subnet" "example" {
 }
 
 resource "azurerm_network_interface" "example" {
-  name                = "example-nic3"
+  count               = local.vm_count
+  name                = "example-nic${count.index + 1}"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
   ip_configuration {
-    name                          = "internal2"
+    name                          = "internal${count.index + 1}"
     subnet_id                     = azurerm_subnet.example.id
     private_ip_address_allocation = "Dynamic"
   }
@@ -42,10 +47,11 @@ resource "azurerm_network_interface" "example" {
 
 
 resource "azurerm_virtual_machine" "windows" {
-  name                  = "example-windows-machine"
+  count                 = local.vm_count
+  name                  = "example-windows-machine-${count.index + 1}"
   location              = azurerm_resource_group.example.location
   resource_group_name   = azurerm_resource_group.example.name
-  network_interface_ids = [azurerm_network_interface.example.id]
+  network_interface_ids = [azurerm_network_interface.example[count.index].id]
   vm_size               = "Standard_B1s"
 
   storage_image_reference {
@@ -56,14 +62,14 @@ resource "azurerm_virtual_machine" "windows" {
   }
 
   storage_os_disk {
-    name              = "example-windows-os-disk"
+    name              = "example-windows-os-disk-${count.index + 1}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
 
   os_profile {
-    computer_name  = "winvm01"
+    computer_name  = "winvm0${count.index + 1}"
     admin_username = "adminuser"
     admin_password = "AdminPassword123!"
   }
