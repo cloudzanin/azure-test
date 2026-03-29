@@ -1,12 +1,14 @@
-name: 'Terraform Deployment'
+name: Terraform Deployment
 
 on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-deployment
+  cancel-in-progress: false
 
 jobs:
   terraform:
@@ -14,27 +16,26 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.1.7
 
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURECREDENTIALS }}
 
     - name: Terraform Init
-      run: terraform init
+      run: terraform init -input=false
+
+    - name: Terraform Validate
+      run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan
+      run: terraform plan -input=false
 
     - name: Terraform Apply
-      if: github.event_name == 'push'
-      run: terraform apply -auto-approve
-
-    # - name: Terraform destroy
-    #   run: terraform destroy -auto-approve
+      run: terraform apply -auto-approve -input=false
