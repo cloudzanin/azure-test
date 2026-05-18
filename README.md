@@ -13,4 +13,3 @@ Security note:
 - This is convenient but not hardened. Opening RDP to `*` is suitable for testing only.
 - For safer long-term access, use Azure Bastion or restrict the NSG rule to trusted source ranges.
 
-Create vm
